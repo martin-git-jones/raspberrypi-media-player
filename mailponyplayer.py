@@ -45,14 +45,16 @@ def button_a(button):
     print("A Held - switch to playList A")
     global playList
     global player
+    global direction
     playList  = 'A'
+    direction='resume'
     setplayList()
     try:
-      player.action(15)
+      player.quit()
     except:
        for proc in psutil.process_iter():
     # check whether the process name matches
-         if proc.name() == 'omxplayer':
+         if 'omxplayer' in proc.name() :
             proc.kill()
 
 @buttonshim.on_press(buttonshim.BUTTON_B)
@@ -66,157 +68,8 @@ def button_b(button):
     print("B Held - switch to playList B")
     global playList
     global player
-    playList = 'B'
-    setplayList()
-    #kill
-    try:
-      player.action(15)
-    except:
-       for proc in psutil.process_iter():
-    # check whether the process name matches
-         if proc.name() == 'omxplayer':
-            proc.kill()
-    #restart_player()
-
-# next track
-@buttonshim.on_press(buttonshim.BUTTON_C)
-def button_c(button, pressed):
-    global player
-    global playList
-    nextTrack = getNextTrack('next')
-    try:
-       player.load(nextTrack)
-       global starttime
-       starttime=int(time.time())
-    except:
-       print("Player already dead")
-       player = OMXPlayer(nextTrack)
-    try:
-        buttonshim.set_pixel(0x00, 0xff, 0x00)
-    except:
-        print("No buttons!")
-
-@buttonshim.on_hold(buttonshim.BUTTON_C, hold_time=2)
-def button_c(button):
-    global homedir
-    global musicdirA
-    global musicdirB
-    print("C Held - recreating playLists")
-    #kill
-    try:
-      player.action(15)
-    except:
-       for proc in psutil.process_iter():
-    # check whether the process name matches
-         if proc.name() == 'omxplayer':
-            proc.kill()
-    createPlayList(musicdirA)
-    createPlayList(musicdirB)
-
-#  Rewind
-@buttonshim.on_press(buttonshim.BUTTON_D)
-def button_d(button, pressed):
-    print("D pressed - previous")
-    global player
-    global playList
-    nextTrack = getNextTrack('previous')
-    print("rewind  "+nextTrack)
-    try:
-       player.load(nextTrack)
-       global starttime
-       starttime=int(time.time())
-    except:
-       print("Player already dead")
-       player = OMXPlayer(nextTrack)
-    try:
-       buttonshim.set_pixel(0xff, 0xff, 0x00)
-    except:
-       print("No buttons!")
-    #player.action(16)
-
-@buttonshim.on_hold(buttonshim.BUTTON_D, hold_time=2)
-def button_d(button):
-    print("D Held - reset")
-    global homedir
-    global musicdirA
-    global musicdirB
-    global player
-    try:
-      player.action(15)
-    except:
-       for proc in psutil.process_iter():
-    # check whether the process name matches
-         if proc.name() == 'omxplayer':
-            proc.kill()
-    createPlayList(musicdirA)
-#!/usr/bin/env python3
-import sched
-import psutil
-import signal
-import os
-import sys
-import time
-from time import sleep
-from file_read_backwards import FileReadBackwards
-try:
-   import buttonshim
-except:
-   print("No buttonshim")
-from configparser import ConfigParser
-
-try:
-   from omxplayer.player import OMXPlayer
-except:
-   print("No omxplayer")
-
-print("""
-Mailpony Player
-Control the mailponyplayer with
-A = Volume Up / Change to Playlist A when held
-B = Volume Down / Change to Playlist B when held
-C = Fast Forward / Create Playlists when held
-D = Rewind / Reset 
-E = Play / Shutdown when held
-Press Ctrl+C to exit.
-""")
-
-# Increase volume
-#   @buttonshim.on_press(buttonshim.BUTTON_A)
-def button_a(button, pressed):
-    global player
-    print("Status: Increase volume")
-    player.action(18)
-    try:
-        buttonshim.set_pixel(0x94, 0x00, 0xd3)
-    except:
-        print("No buttons!")
-
-@buttonshim.on_hold(buttonshim.BUTTON_A, hold_time=2)
-def button_a(button):
-    print("A Held - switch to playList A")
-    global playList
-    global player
-    playList  = 'A'
-    setplayList()
-    try:
-      player.quit()
-    except:
-       for proc in psutil.process_iter():
-    # check whether the process name matches
-         if proc.name() == 'omxplayer':
-            proc.kill()
-
-@buttonshim.on_press(buttonshim.BUTTON_B)
-def button_b(button, pressed):
-    global player
-    print("Status: Decrease volume")
-    player.action(17)
-
-@buttonshim.on_hold(buttonshim.BUTTON_B, hold_time=2)
-def button_b(button):
-    print("B Held - switch to playList B")
-    global playList
-    global player
+    global direction
+    direction='resume'
     playList = 'B'
     setplayList()
     #kill
@@ -225,7 +78,7 @@ def button_b(button):
     except:
        for proc in psutil.process_iter():
     # check whether the process name matches
-         if proc.name() == 'omxplayer':
+         if 'omxplayer' in proc.name() :
             proc.kill()
 
 # next track
@@ -257,7 +110,7 @@ def button_c(button):
     except:
        for proc in psutil.process_iter():
     # check whether the process name matches
-         if proc.name() == 'omxplayer':
+         if 'omxplayer' in proc.name() :
             proc.kill()
     createPlayList(musicdirA)
     createPlayList(musicdirB)
@@ -271,7 +124,6 @@ def button_d(button, pressed):
     global direction
     direction='previous'
 #    nextTrack = getNextTrack()
-    print("rewind  ")
     try:
        player.quit()
     except:
@@ -294,7 +146,7 @@ def button_d(button):
     except:
        for proc in psutil.process_iter():
     # check whether the process name matches
-         if proc.name() == 'omxplayer':
+         if 'omxplayer' in proc.name() :
             proc.kill()
     createPlayList(musicdirA)
     if os.path.exists(homedir+'playList'+'playListA'+'.txt'):
@@ -315,6 +167,7 @@ def button_e_press(button, pressed):
     print("E pressed")
     global player
     global playList
+    global pausetime
     try:
        status=player.playback_status()
        print("Player " + status)
@@ -343,10 +196,9 @@ def button_e(button):
     player.action(15)
     os.system("/usr/bin/sudo shutdown -h now")
 
-def createPlayList(musicdir):
-    global playList
+def createPlayList(musicdir,letter):
     global homedir
-    with open(homedir+'playList'+playList+'.txt','w+') as f:
+    with open(homedir+'playList'+letter+'.txt','w+') as f:
       for cur, _dirs, files in os.walk(musicdir,topdown=True):
         files.sort()
         for t in files:
@@ -361,7 +213,7 @@ def readPlayList():
     global playList
     global direction
     nextTrack=''
-    if direction == 'resume':
+    if direction == 'resume' and currTrack != '':
        nextTrack = currTrack
        return(nextTrack)
     if direction == 'previous':
@@ -382,28 +234,24 @@ def readPlayList():
 
 def getNextTrack():
    global currTrack
-   global startup
    global playList
    config = ConfigParser(allow_no_value=True)
    global inifile
    config.read(inifile)
    currTrack = config.get('Playing', 'currTrack'+playList, fallback = '')
    nextTrack = readPlayList()
-   if direction == 'resume': 
-     pass
-   else:
-     print("setting currTrack to "+currTrack)
-     config.set('Playing','currTrack'+playList, nextTrack)
-     with open(inifile, 'w') as configfile:
-        config.write(configfile)
+   config.set('Playing','currTrack'+playList, nextTrack)
+   with open(inifile, 'w') as configfile:
+       config.write(configfile)
    return(nextTrack)
 
 def play_track():
      global player
      global playList
-     getplayList()
+#     getplayList()
      global starttime
      global direction
+     global pausetime
      if direction == '':
         direction = 'next'
      try:
@@ -411,22 +259,28 @@ def play_track():
        filename=player.get_filename()
        duration=player.duration()
        currtime=int(time.time())
-       remaining=int(duration-(currtime-starttime))
-       print("Status is " + status +' this ' + filename +' for ' + str(remaining))
+       remaining=int(duration-(currtime-starttime+pausetime))
+       print("Status " + status +' file ' + filename +' for ' + str(remaining))
      except:
        nextTrack = getNextTrack()
-       print("restarting "+nextTrack)
+       if direction == 'resume':
+          direction = 'next'
        starttime=int(time.time())
-       player = OMXPlayer(nextTrack)
+       try:
+           for proc in psutil.process_iter():
+    # check whether the process name matches
+             if 'omxplayer' in proc.name() :
+               proc.kill()
+           player = OMXPlayer(nextTrack)
+       except:
+           direction = 'next'
+           nextTrack = getNextTrack()
        buttonshim.set_pixel(0xff,0xff, 0x00)
 
 def  restart_player():
      global s
      play_track()
-     s.enter(5, 1, restart_player)
-     s.run()
-
-     #print(s.queue)
+     s.enter(2, 1, restart_player)
 
 def getplayList():
  global inifile
@@ -472,12 +326,10 @@ def createinifile():
       currTrack = ''
       playList='B'
       nextTrack = readPlayList( )
-      print("next B is "+nextTrack)
       config.set('Playing', 'currTrackB', nextTrack)
       playList='A'
       currTrack = ''
-      nextTrack = readPlayList( 'next')
-      print("next is "+nextTrack)
+      nextTrack = readPlayList( )
       config.set('Playing', 'currTrackA', nextTrack)
       config.set('Playing', 'playlist', playList)
       with open(inifile, 'w') as configfile:
@@ -488,16 +340,16 @@ def getcurrTrack():
     global playList
     global currTrack
     global inifile
-    global playList
     global homedir
     if os.path.isfile(inifile) == True:
        config = ConfigParser(allow_no_value=True)
        config.read(inifile)
        currTrack = config.get('Playing', 'currTrack'+playList, fallback = '')
-    else :
+    if os.path.isfile(inifile) == False or currTrack == '':
        currTrack=readPlayList()
     return()
 
+pausetime=0
 direction = 'resume'
 currTrack =''
 homedir = '/home/pi/'
@@ -510,19 +362,19 @@ for musicdir in musicdirs:
   print( musicdir,musicdirs[musicdir])
 playLists = {'A':homedir+'playListA.txt','B':homedir+'playListsB.txt'}
 #####
-playList='B'
-if os.path.isfile(homedir+'playList'+playList+'.txt') == False:
-    createPlayList(musicdirB)
-playList='A'
-if os.path.isfile(homedir+'playList'+playList+'.txt') == False:
-    createPlayList(musicdirA)
+if os.path.isfile(homedir+'playList'+'B'+'.txt') == False:
+    createPlayList(musicdirB,'B')
+if os.path.isfile(homedir+'playList'+'A'+'.txt') == False:
+    createPlayList(musicdirA,'A')
 createinifile()
 getplayList()
-createinifile()
+print("playlist is "+playList)
 getcurrTrack()
 s = sched.scheduler(time.time, time.sleep)
 restart_player()
+s.run()
 signal.pause()
 #sys.exit(0)
+
 
 
