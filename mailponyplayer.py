@@ -484,13 +484,10 @@ def getcurrTrack():
 
 
 pausetime = 0
-dir_path = os.path.dirname(os.path.realpath(__file__))
 direction = 'resume'
 currTrack = ''
-homedir = dir_path + '/'
 inifile = homedir + "mailponyplayer.ini"
-musicdirA = homedir + 'Music'
-musicdirB = homedir + 'courses'
+
 # Change this as below to handle more playlists TODO
 musicdirs = {'A': homedir + 'Music', 'B': homedir + 'courses'}
 for musicdir in musicdirs:
