@@ -10,21 +10,41 @@ import time
 from time import sleep
 from file_read_backwards import FileReadBackwards
 from configparser import ConfigParser
-
+from optparse import OptionParser
+# Read options from the command line
+parser = OptionParser()
+parser.add_option("-A", "--musicdirA", dest="musicdirA", help="First media directory containing files to be played", metavar="FILE")
+parser.add_option("-B", "--musicdirB", dest="musicdirB", help="Second media directory containing files to be played", metavar="FILE")
+parser.add_option("-k", "--keyboard", action="store_true", dest="usekeyboard", default=False,help="Use keyboard to enter control keys")
+parser.add_option("-b", "--buttonshim", action="store_true", dest="usebuttons", default=True,help="Use buttonshim buttons")
+(options, args) = parser.parse_args()
+# Set initial music directory
+dir_path = os.path.dirname(os.path.realpath(__file__))
+homedir = dir_path + '/'
+if options.musicdirA == '' :
+    musicdirA = homedir + 'Music'
+if options.musicdirB == '' :
+    musicdirB = musicdirA
+# See if the buttonshim is installed
 try:
     import buttonshim
-
     buttonshim.set_pixel(0x94, 0x00, 0xd3)
     buttons = True
 except:
     print("No buttonshim")
+    if options.usebuttons:
+       print("Please try again without the -b option")
+       sys.exit(0)
     buttons = False
-
+if options.usekeyboard:
+   buttons = False
+# Check the omxplayer is installed
 try:
     from omxplayer.player import OMXPlayer
 except:
-    print("No omxplayer")
+    print("No omxplayer found ")
     sys.exit(0)
+
 
 if buttons:
     print("""
@@ -103,6 +123,10 @@ if buttons:
     def button_b(button, pressed):
         dec_volume()
 
+if buttons:
+    @buttonshim.on_hold(buttonshim.BUTTON_B, hold_time=2)
+    def button_b(button):
+        switchtoplayList('B')
 
 # next track
 def playnextTrack():
